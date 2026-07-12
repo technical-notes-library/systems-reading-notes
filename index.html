@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Systems Reading Notes</title>
+  <meta name="description" content="A static technical notebook for browsing computer systems references.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <nav class="top-nav" aria-label="Primary navigation">
+      <a href="#introduction">Notes</a>
+      <a href="#evaluation">Evaluation</a>
+      <a href="#memory-storage">Memory &amp; Storage</a>
+      <a href="#references">References</a>
+    </nav>
+    <div class="hero">
+      <p class="eyebrow">Systems Reading Notes</p>
+      <h1>Computer Systems Literature Notebook</h1>
+      <p class="lede">A quiet reference browser and reading guide for architecture, memory, storage, local processing, and data-intensive systems papers.</p>
+      <div class="hero-actions">
+        <a class="button primary" href="#references">Browse references</a>
+        <a class="button" href="?view=references#references">Reference-only view</a>
+      </div>
+    </div>
+  </header>
+  <main>
+    <article id="notes" class="article">
+<section id="introduction" class="article-section">
+  <h2>Introduction</h2>
+  <p>Computer systems papers often describe design choices that only make sense when they are read against several constraints at once. A mechanism that looks simple in isolation may be shaped by latency, bandwidth, capacity, programmability, data placement, power, and the practical limits of evaluation infrastructure. This page is a neutral reading notebook for that kind of literature. It is organized around recurring questions that are useful when reading work on computer architecture, memory systems, storage systems, data-intensive processing, and hardware-aware software design.</p>
+  <p>The goal is not to turn a bibliography into a single story or to claim that the references point to one specific project. Instead, the page treats the references as a collection that can be searched, copied, and revisited while reading systems papers. The notes below focus on general evaluation habits: how to separate problem statements from design assumptions, how to identify where data moves, how to read performance claims, and how to compare systems without losing sight of workloads and methodology.</p>
+  <p>Systems research is unusually sensitive to context. A technique can be attractive under one memory hierarchy, input distribution, or deployment model, and much less compelling under another. A careful reader therefore asks what the baseline includes, which costs are counted, how scale changes the bottleneck, and whether the implementation exposes enough detail to support the conclusion. These questions apply broadly across processor architecture, storage, accelerators, retrieval systems, and data management.</p>
+</section>
+
+<section id="reading" class="article-section">
+  <h2>How to Read Systems Papers</h2>
+  <p>A practical way to read a systems paper is to separate four layers: workload, abstraction, mechanism, and evidence. The workload describes what the system is expected to do. The abstraction describes what interface or model the design exposes. The mechanism explains how the system changes data layout, scheduling, computation, communication, or control flow. The evidence shows whether those choices improve the intended objective under stated assumptions.</p>
+  <p>The first pass should identify the problem boundary. Some papers optimize throughput, some optimize tail latency, some reduce memory footprint, and others reduce movement across a bus or network. These goals are related but not interchangeable. A design that lowers average latency may increase setup cost. A design that improves bandwidth utilization may depend on batching. A design that reduces memory capacity pressure may introduce extra computation. Reading with the objective in mind prevents a single metric from becoming an accidental proxy for overall quality.</p>
+  <p>The second pass should identify the baseline. A strong baseline is not merely an older system; it is a credible alternative configured with care. For architecture and storage papers, baseline details often include device generations, memory capacity, interconnect bandwidth, compiler flags, index settings, queue depths, thread counts, and batching policies. For data-intensive workloads, the baseline may also depend on input distributions, corpus size, recall or accuracy targets, and preprocessing choices. Small differences in these details can change the apparent bottleneck.</p>
+  <p>The third pass should look for what is outside the main result. Setup time, preprocessing, index construction, data conversion, recovery, update cost, and operational complexity may be central in practice even when they are not the primary graph in the paper. A system intended for repeated queries can reasonably amortize build cost; a system intended for rapidly changing data may not. A technique that works well for read-heavy workloads may have a different profile when writes, deletes, or reconfiguration are included.</p>
+</section>
+
+<section id="evaluation" class="article-section">
+  <h2>Common Evaluation Perspectives</h2>
+  <p>Evaluation in computer systems is most useful when each metric is tied to a specific question. Throughput asks how much work completes per unit time. Latency asks how long a unit of work waits before completion. Tail latency asks whether a system remains predictable under contention or skew. Accuracy, recall, or quality metrics ask whether an optimization changes the semantic result. Energy and power ask whether the system changes the operating envelope, not just the elapsed time.</p>
+  <p>Scale is another important dimension. Some systems are evaluated at a size where all data fits comfortably in memory; others are designed for data that spills across storage tiers or distributed components. A reader should watch for the point where the dominant cost changes. At small scale, computation may dominate. At larger scale, memory bandwidth, storage access, synchronization, or data movement may become more important. A single speedup number rarely explains this transition by itself.</p>
+  <p>Comparisons also depend on the chosen operating point. In search, retrieval, and approximate processing, a result is usually meaningful only with a quality target. Faster execution at lower quality is not equivalent to faster execution at the same quality. Similarly, compression and quantization should be read together with their error behavior, memory savings, and downstream cost. A compact representation that saves bandwidth can still be expensive if decoding or correction dominates the critical path.</p>
+  <p>Experimental methodology should make uncertainty visible. Repeated runs, confidence intervals, sensitivity analysis, and ablation studies help distinguish robust effects from one configuration. Even when a paper cannot evaluate every possible setting, it should expose enough structure for the reader to understand which parameters matter. The best evaluations make it clear where the design wins, where it loses, and why.</p>
+</section>
+
+<section id="memory-storage" class="article-section">
+  <h2>Memory and Storage System Considerations</h2>
+  <p>Memory and storage systems are often discussed as capacity layers, but performance depends on much more than capacity. Access granularity, parallelism, latency distribution, bandwidth sharing, request scheduling, and endurance constraints all affect the design space. A hierarchy can be fast on average while still creating severe penalties for irregular access. Conversely, a slower layer can be effective when requests are predictable, batched, or filtered before they cross an expensive boundary.</p>
+  <p>When reading work in this area, it is useful to trace the life of a cache line, page, block, or object. Where is the data stored? When is it moved? Is it copied, transformed, compressed, or reordered? Which component waits? Which component can run in parallel? These questions reveal whether a design mainly reduces latency, increases concurrency, changes locality, or shifts work to a different resource.</p>
+  <p>Capacity trade-offs are rarely only about storing more data. A larger structure can reduce misses but increase traversal cost. A smaller structure can fit in faster memory but require additional computation. Metadata may become a hidden cost, especially when the data representation is highly compressed or indexed. In systems that mix memory and storage, metadata placement can be as important as payload placement.</p>
+  <p>Durability and update behavior also matter. A design optimized for static data may avoid complications that appear when data changes. Persistent storage introduces ordering, recovery, and consistency questions. Even for read-mostly workloads, rebuild time and migration cost can affect whether a technique is practical. These issues do not make a design invalid, but they define the envelope in which the evidence should be interpreted.</p>
+</section>
+
+<section id="movement" class="article-section">
+  <h2>Data Movement and Local Processing</h2>
+  <p>Many systems papers can be read as attempts to reduce unnecessary data movement. Moving data between storage, memory, accelerators, processors, and networks can cost more than the computation performed on that data. Local processing, near-memory processing, in-storage processing, compression, filtering, and specialized indexing all address the same broad question: can the system avoid moving bytes that do not contribute enough value?</p>
+  <p>The answer depends on selectivity and reuse. If a local operation discards most data before it reaches a scarce link, it may be valuable even when the local processor is modest. If the data will be reused many times by a powerful host processor, moving it once may be preferable. If local processing requires a restrictive programming model or expensive data conversion, the benefit must be weighed against that integration cost.</p>
+  <p>Hardware acceleration raises similar questions. An accelerator is not automatically faster for an end-to-end workload. Data preparation, transfer overhead, synchronization, memory allocation, and result collection can dominate unless the system is shaped around them. The most convincing evaluations show both kernel-level behavior and whole-system behavior, because improvements inside an accelerator may be diluted by surrounding overheads.</p>
+  <p>Readers should also distinguish bandwidth reduction from latency reduction. A design can reduce total bytes moved while adding extra stages to the request path. That may improve throughput under load but hurt short queries. Another design may reduce latency for small requests without changing aggregate bandwidth. The right interpretation depends on the workload's request size, concurrency, and service-level objective.</p>
+</section>
+
+<section id="search" class="article-section">
+  <h2>Search and Data-Intensive Workloads</h2>
+  <p>Search and data-intensive workloads are useful case studies because they combine algorithmic quality with systems constraints. Index structures, compression formats, graph traversal policies, batching, caching, and hardware placement can all affect the final result. A reader should avoid treating the algorithm and the system as separate when the implementation changes which operations are cheap.</p>
+  <p>For approximate methods, the operating point is central. The same method can appear strong or weak depending on the target quality, dataset size, dimensionality, update pattern, and memory budget. Comparisons should therefore be read as curves or trade-off surfaces rather than isolated numbers. A single latency value without its quality target is incomplete, and a single quality value without its resource usage is also incomplete.</p>
+  <p>Data layout is often a first-class design choice. Sequential access, random access, vectorized computation, parallel graph expansion, and compressed distance evaluation all impose different layout requirements. A layout that improves one phase can hurt another. Good evaluations usually make this tension visible by measuring build time, memory footprint, query time, and sensitivity to key parameters.</p>
+  <p>Workload realism is especially important. Public benchmarks are valuable because they support comparison, but a benchmark still represents a particular distribution and set of assumptions. Query distribution, corpus drift, filtering predicates, update frequency, and multi-tenant interference can all change system behavior. A careful note-taking habit is to record which parts of a result seem benchmark-specific and which parts reflect a broader systems principle.</p>
+</section>
+
+<section id="methodology" class="article-section">
+  <h2>Notes on Experimental Methodology</h2>
+  <p>Good methodology starts with a clear claim. If the claim is about latency, the evaluation should show the relevant latency distribution. If the claim is about memory efficiency, it should count all major structures needed at runtime. If the claim is about scalability, it should vary the scale enough to reveal the trend. If the claim is about practical deployment, it should include setup, updates, failures, or operational constraints where those are relevant.</p>
+  <p>Ablation studies are particularly helpful because they separate the contribution of individual design choices. Without ablations, a reader may know that a complete system performs well but not which choices are essential. Sensitivity studies serve a related purpose. They show whether a design depends on a narrow parameter setting or remains effective across a reasonable range.</p>
+  <p>Reproducibility does not require every artifact to be perfect, but it does require enough detail for independent interpretation. Hardware configuration, software versions, compiler settings, dataset preparation, measurement scripts, and warm-up policies can all affect results. When these details are missing, the result may still be interesting, but the reader should mark the uncertainty.</p>
+  <p>Finally, negative results and limitations are useful. A paper that clearly states when a method does not help is easier to apply than one that only presents favorable settings. In a reading notebook, limitations should be recorded as part of the technical contribution, because they often explain the real shape of the design space.</p>
+</section>
+
+<section id="about" class="article-section">
+  <h2>About This Page</h2>
+  <p>This page is a static technical notebook for browsing and copying references while reading computer systems literature. The reference collection preserves a TeX-oriented source string for each entry and also provides a display-oriented rendering for browser use. The generated BibTeX entries are convenience exports and should be treated as secondary to the preserved TeX entries when exact wording matters.</p>
+</section>
+    </article>
+    <section id="references" class="references-section">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Reference Collection</p>
+          <h2>References</h2>
+        </div>
+        <a class="anchor-link" href="#references">#references</a>
+      </div>
+      <div class="toolbar" aria-label="Reference controls">
+        <label class="search-box">Search
+          <input id="searchInput" type="search" placeholder="Title, author, venue">
+        </label>
+        <label>Year
+          <select id="yearFilter"><option value="">All years</option></select>
+        </label>
+        <button id="toggleNotes" type="button">Reference-only view</button>
+        <button id="copyAllTex" type="button">Copy all original TeX</button>
+        <a class="button" download href="references-original.tex">Download references-original.tex</a>
+        <a class="button" download href="references.bib">Download references.bib</a>
+      </div>
+      <p id="countSummary" class="count-summary" aria-live="polite"></p>
+      <div id="referenceList" class="reference-list"></div>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <p>Static technical notebook. No analytics, ads, or external scripts.</p>
+  </footer>
+  <script src="script.js"></script>
+</body>
+</html>

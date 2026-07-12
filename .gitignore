@@ -1,0 +1,8 @@
+refs.tex
+*refs*.tex.bak
+*.bak
+*.tmp
+.DS_Store
+.env
+local-build-report.md
+tools/

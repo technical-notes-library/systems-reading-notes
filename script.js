@@ -9,6 +9,7 @@ const yearFilter = document.getElementById("yearFilter");
 const countSummary = document.getElementById("countSummary");
 const toggleNotes = document.getElementById("toggleNotes");
 const copyAllTex = document.getElementById("copyAllTex");
+const copyAllBib = document.getElementById("copyAllBib");
 
 function escapeHtml(value) {
   return String(value || "").replace(/[&<>"']/g, char => ({
@@ -94,6 +95,10 @@ toggleNotes.addEventListener("click", () => {
 
 copyAllTex.addEventListener("click", () => {
   copyText(state.references.map(ref => ref.original_tex).join("\n\n"), copyAllTex);
+});
+
+copyAllBib.addEventListener("click", () => {
+  copyText(state.references.map(ref => ref.bibtex).join("\n\n"), copyAllBib);
 });
 
 fetch("references.json")

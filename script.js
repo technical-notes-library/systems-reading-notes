@@ -10,6 +10,7 @@ const countSummary = document.getElementById("countSummary");
 const toggleNotes = document.getElementById("toggleNotes");
 const copyAllTex = document.getElementById("copyAllTex");
 const copyAllBib = document.getElementById("copyAllBib");
+let allBibText = "";
 
 function escapeHtml(value) {
   return String(value || "").replace(/[&<>"']/g, char => ({
@@ -98,8 +99,13 @@ copyAllTex.addEventListener("click", () => {
 });
 
 copyAllBib.addEventListener("click", () => {
-  copyText(state.references.map(ref => ref.bibtex).join("\n\n"), copyAllBib);
+  copyText(allBibText || state.references.map(ref => ref.bibtex).join("\n\n"), copyAllBib);
 });
+
+fetch("references.bib")
+  .then(response => response.text())
+  .then(text => { allBibText = text; })
+  .catch(() => { allBibText = ""; });
 
 fetch("references.json")
   .then(response => response.json())
